@@ -4,6 +4,9 @@ const http = require("http");
 const path = require("path");
 const socketio = require("socket.io");
 
+// Importing formatMessage function
+const formatMessage = require("./utils/messages");
+
 // Initializing express
 const app = express();
 
@@ -16,19 +19,30 @@ const io = socketio(server);
 // Setting static resources directory
 app.use(express.static(path.join(__dirname, "public")));
 
+// Setting botName
+const botName = "ChatSpace Bot";
+
 // Run when a client connects
 io.on("connection", (socket) => {
     // console.log("New WS connection");
 
-    socket.emit("message", "Welcome to ChatSpace!"); // sending message to the client that's connecting
+    socket.emit("message", formatMessage(botName, "Welcome to ChatSpace!")); // sending message to the client that's connecting
 
     // Broadcast when a user connects
-    socket.broadcast.emit("message", "A user has joined the chat"); // sending message to all clients except the connecting client
+    socket.broadcast.emit(
+        "message",
+        formatMessage(botName, "A user has joined the chat")
+    ); // sending message to all clients except the connecting client
 
     // Runs when client disconnects
     socket.on("disconnect", () =>
-        io.emit("message", "A user has left the chat")
+        io.emit("message", formatMessage(botName, "A user has left the chat"))
     );
+
+    // Listen for chatMessage
+    socket.on("chatMessage", (msg) => {
+        io.emit("message", formatMessage("user", msg));
+    });
 });
 
 // Setting server port
