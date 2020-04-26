@@ -18,7 +18,17 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // Run when a client connects
 io.on("connection", (socket) => {
-    console.log("New WS connection");
+    // console.log("New WS connection");
+
+    socket.emit("message", "Welcome to ChatSpace!"); // sending message to the client that's connecting
+
+    // Broadcast when a user connects
+    socket.broadcast.emit("message", "A user has joined the chat"); // sending message to all clients except the connecting client
+
+    // Runs when client disconnects
+    socket.on("disconnect", () =>
+        io.emit("message", "A user has left the chat")
+    );
 });
 
 // Setting server port
