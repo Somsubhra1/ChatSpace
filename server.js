@@ -37,7 +37,13 @@ io.on("connection", (socket) => {
         // Join room
         socket.join(user.room);
 
-        socket.emit("message", formatMessage(botName, "Welcome to ChatSpace!")); // sending message to the client that's connecting
+        socket.emit(
+            "message",
+            formatMessage(
+                botName,
+                `Welcome ${user.username} to ChatSpace room: ${user.room}!`
+            )
+        ); // sending message to the client that's connecting
 
         // Broadcast when a user connects
         socket.broadcast
@@ -57,7 +63,7 @@ io.on("connection", (socket) => {
     // Listen for chatMessage
     socket.on("chatMessage", (msg) => {
         const user = getCurrentUser(socket.id);
-        io.emit("message", formatMessage(user.username, msg));
+        io.to(user.room).emit("message", formatMessage(user.username, msg));
     });
 
     // Runs when client disconnects
